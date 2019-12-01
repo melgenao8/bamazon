@@ -4,40 +4,78 @@ var inquirer = require("inquirer");
 // 1a)  connect to sql database
 var connection = mysql.createConnection({
     host: "localhost",
-    port: 1221,
+    port: 3306,
     user: "root",
-    password: "",
+    password: "1188Meli26",
     database: "bamazon_DB"
 });
 
 // 1b)  connect to mysql server & sql database
 connection.connect(function (err) {
     if (err) throw err;
-    start();
+    loadProducts();
 });
 
 //========================================================================
 
 
 // 2) display mysql table
-
+// display all of the items available for sale
+// Include the ids, names, and prices of products for sale.
+function loadProducts() {
+    connection.query("SELECT * FROM products", function (err, res) {
+        console.table(res);
+        start(res);
+    })
+};
 
 //========================================================================
 // function that prompts user to order a product
 
 
 // 3a)  1st message: ask the ID of the product they would like to buy.
-function start() {
+function start(inventory) {
     inquirer
-        .prompt({
+        .prompt([{
             name: "category",
             type: "input",
             message: "Enter product ID"
-        })
+        }])
         .then(function (answer) {
+            var input_id = parseInt(answer.category)
             // 3b) based on their answer, fetch that product
+            for (var i = 0; i < inventory.length; i++) {
+                if (inventory[i].item_id === input_id) {
+                    var product = inventory[i]
 
+                    inquirer
+                        .prompt([{
+                            name: "quantity",
+                            type: "input",
+                            message: "How many do you want to purchase?"
+                        }])
+                        .then(function (value) {
+                            var quantity = parseInt(value.quantity)
+
+                            if (quantity > product.stock_quantity) {
+                                console.log("Not enough quantity!");
+                                loadProducts();
+                            } else {
+                                makePurchase(product, quantity);
+                            }
+                        });
+                }
+            }
         });
+}
+
+function makePurchase(product, quantity) {
+    connection.query("UPDATE products SET stock_quantity = stock_quantity - ? WHERE item_id = ?",
+        [quantity, product.item_id],
+        function (err, res) {
+            console.log("Youve just purchased " + quantity + " " + product.product_name);
+            loadProducts();
+        })
 }
 
 // 3c)  2nd message: Ask how many units of the product they would like to buy
