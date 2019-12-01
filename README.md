@@ -1,7 +1,7 @@
 # The Office Supplies Store
 A Node.js & MySQL application
 
-
+![](bamazon-ezgif.gif)
 
 This app takes in orders from customers and depletes stock from the store's inventory.
 
@@ -13,6 +13,5 @@ This app takes in orders from customers and depletes stock from the store's inve
 	-- 4) Once user "buys" an item and the order has been placed, the inventory updates
 		-- Order is prevented from processing should user request a quantity greater than stock quantity
 
-![](bamazon-ezgif.gif)
 
 ```
